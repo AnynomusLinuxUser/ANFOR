@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LiveInvader ANFOR</title>
+    <style>
+        /* General Styles */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            background: url('https://gta5grand.com/new/assets/img/background.jpg') no-repeat center center fixed;
+            background-size: cover;
+            text-align: center;
+            color: white;
+            overflow: hidden;
+        }
+
+        /* Logo Container */
+        .logo-container {
+            position: fixed;
+            top: 40px; /* Adjusted to prevent overlap */
+            left: 20px;
+            z-index: 1000;
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        .logo {
+            height: 60px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .logo:hover {
+            transform: scale(1.1);
+        }
+
+        /* Title */
+        .title {
+            font-size: 26px;
+            font-weight: bold;
+            text-transform: uppercase;
+            color: black; /* Black color */
+            margin-top: 20px;
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.7);
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Toggle Buttons */
+        .toggle-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        .toggle-btn {
+            padding: 12px 20px;
+            border: none;
+            background: #ff0000; /* Red color */
+            color: white;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .toggle-btn.active {
+            background: #cc0000; /* Darker red for active state */
+        }
+
+        .toggle-btn:hover {
+            transform: scale(1.05);
+        }
+
+        /* Suche Buttons */
+        .suche-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        .suche-buttons button {
+            padding: 10px 15px;
+            border: none;
+            background: #ff0000; /* Red color */
+            color: white;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .suche-buttons button:hover {
+            background: #cc0000; /* Darker red on hover */
+            transform: scale(1.05);
+        }
+
+        /* Textarea and Input Fields */
+        textarea {
+            width: 100%;
+            height: 100px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            border: none;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            resize: none;
+            transition: all 0.3s ease;
+        }
+
+        textarea:focus {
+            outline: none;
+            border: 2px solid #ff0000; /* Red border on focus */
+            transform: scale(1.02);
+        }
+
+        input[type="text"] {
+            width: calc(100% - 24px);
+            padding: 12px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            border: none;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            display: none; /* Initially hidden */
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        input[type="text"].visible {
+            display: block;
+            opacity: 1;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border: 2px solid #ff0000; /* Red border on focus */
+            transform: scale(1.02);
+        }
+
+        /* Format Button */
+        button {
+            padding: 12px 20px;
+            border: none;
+            background: #ff0000; /* Red color */
+            color: white;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: #cc0000; /* Darker red on hover */
+            transform: scale(1.05);
+        }
+
+        /* Suggestions Dropdown */
+        .suggestions {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.9);
+            border-radius: 8px;
+            max-height: 150px;
+            overflow-y: auto;
+            width: calc(100% - 24px);
+            z-index: 1000;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.7);
+            margin-top: 5px; /* Add some spacing */
+            display: none; /* Initially hidden */
+        }
+
+        .suggestions div {
+            padding: 8px 12px; /* Smaller padding */
+            cursor: pointer;
+            color: white;
+            font-size: 14px; /* Smaller font size */
+            transition: background 0.2s ease;
+        }
+
+        .suggestions div:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .suggestions div span {
+            font-size: 12px;
+            color: #ff0000; /* Red color for category */
+            margin-left: 10px;
+        }
+
+        /* Output Textarea and Copy Button */
+        .output-container {
+            position: relative;
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        .output-container textarea {
+            background: rgba(255, 255, 255, 0.1);
+            cursor: not-allowed; /* Disable cursor */
+            font-size: 16px; /* Larger font size */
+            font-weight: bold; /* Bold text */
+            color: #ff0000; /* Red color for output */
+            border: 2px solid #ff0000; /* Red border */
+            padding: 15px; /* More padding */
+        }
+
+        .copy-button {
+            position: absolute;
+            right: 10px;
+            bottom: 25px;
+            padding: 8px 16px;
+            background: #ff0000; /* Red color */
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .copy-button:hover {
+            background: #cc0000; /* Darker red on hover */
+            transform: scale(1.05);
+        }
+
+        /* Popup Styles */
+        .popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            display: none;
+            opacity: 0;
+            animation: fadeIn 0.3s ease-in-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translate(-50%, -60%); }
+            to { opacity: 1; transform: translate(-50%, -50%); }
+        }
+
+        @keyframes fadeOut {
+            from { opacity: 1; transform: translate(-50%, -50%); }
+            to { opacity: 0; transform: translate(-50%, -60%); }
+        }
+
+        .popup p {
+            margin: 0;
+            font-size: 18px;
+            color: white;
+        }
+
+        .popup button {
+            margin-top: 15px;
+            padding: 10px 20px;
+            border: none;
+            background: #ff0000; /* Red color */
+            color: white;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .popup button:hover {
+            background: #cc0000; /* Darker red on hover */
+            transform: scale(1.05);
+        }
+
+        /* Notification Styles */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px; /* Move to top-right corner */
+            background: rgba(0, 0, 0, 0.9);
+            padding: 10px 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            display: none;
+            opacity: 0;
+            animation: fadeInNotification 0.3s ease-in-out forwards;
+        }
+
+        @keyframes fadeInNotification {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeOutNotification {
+            from { opacity: 1; transform: translateY(0); }
+            to { opacity: 0; transform: translateY(-20px); }
+        }
+
+        .notification p {
+            margin: 0;
+            font-size: 18px;
+            color: white;
+        }
+
+        /* Bottom Menu */
+        .bottom-menu {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        .bottom-menu button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .bottom-menu button:hover {
+            color: #ff0000; /* Red color on hover */
+            transform: scale(1.1);
+        }
+
+        /* Disclaimer Styles */
+        .disclaimer {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            text-align: center;
+            animation: fadeIn 0.3s ease-in-out forwards;
+        }
+
+        .disclaimer p {
+            font-size: 20px;
+            margin: 0;
+            color: white;
+        }
+
+        .disclaimer button {
+            margin-top: 15px;
+            padding: 10px 20px;
+            border: none;
+            background: #ff0000; /* Red color */
+            color: white;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .disclaimer button:hover {
+            background: #cc0000; /* Darker red on hover */
+            transform: scale(1.05);
+        }
+
+        /* Overlay for Disclaimer */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 999;
+            display: none;
+        }
+
+        /* Document Popup Styles */
+        .document-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            display: none;
+            opacity: 0;
+            animation: fadeIn 0.3s ease-in-out forwards;
+        }
+
+        .document-popup h2 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: white;
+        }
+
+        .document-popup .popup-links {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .document-popup .popup-links a {
+            color: #ff0000; /* Red color */
+            text-decoration: none;
+            font-weight: bold;
+            transition: 0.3s;
+            padding: 10px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .document-popup .popup-links a:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(10px);
+        }
+
+        .document-popup .close-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .document-popup .close-button:hover {
+            color: #ff0000; /* Red color on hover */
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body>
+    <!-- Overlay for Disclaimer -->
+    <div class="overlay" id="overlay"></div>
+
+    <!-- Disclaimer -->
+    <div class="disclaimer" id="disclaimer">
+        <p>Ich übernehme keine Haftung für falsche Anzeigen. Bitte kontrolliere die Anzeige, bevor du diese hochlädst.</p>
+        <p>Du kannst die Seite erst nach 10 Sekunden verlassen.</p>
+        <button id="closeDisclaimer" disabled>OK (10)</button>
+    </div>
+
+    <!-- Popup -->
+    <div class="popup" id="popup">
+        <p id="popup-message"></p>
+        <button onclick="closePopup()">OK</button>
+    </div>
+
+    <!-- Document Popup -->
+    <div class="document-popup" id="documentPopup">
+        <button class="close-button" onclick="closeDocumentPopup()">×</button>
+        <h2>Dokumente</h2>
+        <div class="popup-links">
+            <a href="https://docs.google.com/spreadsheets/d/1tMgXbJqYVV6iJML0chs50asZPsAVwCioJwIWnZw6Y9w/edit?gid=511051459#gid=511051459" target="_blank">Fahrzeugliste</a>
+            <a href="https://sites.google.com/view/alleszumlifeinvader/anzeigen/verbotene-anzeigen?authuser=0" target="_blank">Verbotene Anzeigen</a>
+            <a href="https://sites.google.com/view/alleszumlifeinvader/anzeigen/anzeigeregeln?authuser=0" target="_blank">Anzeigeregeln</a>
+            <a href="https://sites.google.com/view/alleszumlifeinvader/anzeigen/umschreibungen?authuser=0" target="_blank">Umschreibungen</a>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div class="notification" id="notification">
+        <p id="notification-message"></p>
+    </div>
+
+    <!-- LiveInvader Logo -->
+    <div class="logo-container">
+        <img src="https://lh4.googleusercontent.com/NMCE6j8SohhVe5mGRr5-eBUZ277iJtUe1wPbzqTlDzLQGgrPEi0B2K3h3vlvpbSC7jp7gsGV-dkUcMiZiJUgrgs=w1280" alt="LiveInvader Logo" class="logo" onclick="window.open('https://sites.google.com/view/alleszumlifeinvader/news_1', '_blank')">
+    </div>
+
+    <!-- Title -->
+    <div class="title">LiveInvader ANFOR</div>
+
+    <!-- Main Container -->
+    <div class="container">
+        <div class="toggle-container">
+            <button class="toggle-btn active" id="toggleSuche" onclick="setMode('Suche')">Suche</button>
+            <button class="toggle-btn" id="toggleKaufe" onclick="setMode('Kaufe')">Kaufe</button>
+            <button class="toggle-btn" id="toggleVerkaufe" onclick="setMode('Verkaufe')">Verkaufe</button>
+        </div>
+
+        <!-- Suche Buttons -->
+        <div class="suche-buttons" id="sucheButtons">
+            <button onclick="appendText('Bitte melde dich')">Bitte melde dich</button>
+            <button onclick="appendText('Ich liebe dich')">Ich liebe dich</button>
+        </div>
+
+        <textarea id="inputText" placeholder="Gib hier deine Anzeige ein..." oninput="handleInput()"></textarea>
+        <div id="suggestions" class="suggestions"></div>
+        <input type="text" id="priceInput" placeholder="Gib hier den Preis ein (z.B. 100k, 1.000.000, 2mio)...">
+        <button id="formatButton" onclick="formatText()">Formatieren</button>
+        <h3>Ergebnis:</h3>
+        <div class="output-container">
+            <textarea id="outputText" readonly></textarea>
+            <button class="copy-button" onclick="copyOutput()">Kopieren</button>
+        </div>
+    </div>
+
+    <!-- Bottom Menu -->
+    <div class="bottom-menu">
+        <button onclick="showDocumentsPopup()">Dokumente</button>
+        <button onclick="showPopup('Kontakt: Discord - gamer123opi')">Kontakt</button>
+    </div>
+
+    <script>
+        const illegalItems = ["Drogen", "Crack", "Kokain", "Heroin", "Meth", "Ecstasy", "LSD", "Schusswaffen", "Pistole", "Gewehr", "Munition", "Falschgeld", "Balaclava", "Dietriche", "USB mit Virus", "USB Stick mit Virus", "Illegale Waffen", "Schlagring", "Messer", "Taser", "Molotow", "Sprengstoff", "Silberbarren", "Goldbarren", "Gestohlene Waren", "Illegale Dokumente", "Gefälschte Ausweise", "Schmuggelware", "Waffenhandel", "Drogendealer", "Schwarzmarkt", "Hehlerware", "Korrupte Polizisten", "Gestohlene Autos", "Autohehlerei", "Geldwäsche"];
+        const vehicleCorrections = {
+            "audi": "Obey",
+            "aston martin": "Ocelot",
+            "bentley": "Enus",
+            "bmw": "Ubermacht",
+            "bugatti": "Truffade",
+            "chevrolet": "Declasse",
+            "dodge": "Bravado",
+            "lamborghini": "Pegassi",
+            "land rover": "Gallivanter",
+            "lexus": "Emperor",
+            "mclaren": "Progen",
+            "volkswagen": "Burgerfahrzeug",
+            "vw": "Burgerfahrzeug",
+            "cadillac": "Albany",
+            "ferrari": "Grotti",
+            "ford": "Vapid",
+            "honda": "Dinka",
+            "hyundai": "Bollokan",
+            "kia": "KMTA",
+            "nissan": "Annis",
+            "porsche": "Pfister",
+            "tesla": "Coil",
+            "volvo": "Vulcar",
+            "toyota": "Karin",
+            "mercedes": "Benefactor"
+        };
+        const clothingCorrections = {
+            "adidas": "Abibas",
+            "nike": "Niki",
+            "yeezy": "Keezy",
+            "vans": "Pans",
+            "crocs": "Rocs",
+            "loui vuitton": "Lui Vi",
+            "jordans": "Mordans",
+            "palm angel": "Arm Pangel",
+            "north face": "West Pace",
+            "supreme": "Sup/Mupreme",
+            "calvin klein": "Alvin Lein",
+            "champion": "Schampon",
+            "gucci": "Muci",
+            "dior": "Fior",
+            "fendi": "IFEN",
+            "off white": "OF",
+            "prada": "Panda",
+            "balenciaga": "Valenciaga"
+        };
+        const vehicleList = [
+            "Ocelot XE SV Project 8", "Enus Continental GT", "Ubermacht X5", "Truffade Chiron", "Declasse Chevelle SS1970",
+            "Bravado Coronet 1967", "Lampadati Giulia GTA", "Ocelot Vantage V12", "Enus Cullinan", "Ubermacht 760",
+            "Declasse Camaro 1970", "Bravado Charger 1969", "Ocelot Vanquish Zagato SB", "Enus Bentayga", "Ubermacht X6-M",
+            "Declasse Corvette C7", "Bravado Viper 2008", "Ocelot Victor", "Enus Phantom", "Ubermacht X6-M 2021 Nr.X",
+            "Declasse Tahoe", "Bravado Ram 1500", "Ocelot F-Type R", "Enus Spectre Nr.1-10", "Ubermacht M5 E34",
+            "Declasse Camaro 2020", "Ocelot Eletre", "Ubermacht M3 E46", "Ubermacht M8", "Ubermacht I8",
+            "Ubermacht M3 CS", "Ubermacht M4 GTS", "Ubermacht M5 E60", "Ubermacht M5 CS", "Obey S8",
+            "Albany Escalade", "Grotti Italia F458", "Vapid Mustang Saleen 2000", "Dinka NSX 2017", "Bollokan Sonata 2022",
+            "Octavia RS", "Obey RS7", "Grotti Purosangue Nr.1-10", "Vapid Mustang Boss 302", "Dinka S2000",
+            "Obey RS6", "Grotti Tributo F8", "Vapid Mustang GT500", "Dinka Civic Type R", "Obey A8",
+            "Shelby GT500", "Dinka CBR", "Obey R8", "Dinka RT-300", "Obey Q8",
+            "Dinka Civic 2000", "Obey A6", "Obey Q60", "KMTA GT Line", "Pegassi Huayra BC",
+            "Gallivanter Velar", "Emperor RC-F", "Progen GT", "Burgerfahrzeug Jetta 1995", "Scooby Doo Car",
+            "Pegassi Performante LP640", "Gallivanter Defender", "Emperor LX-570", "Progen 675 LT", "Burgerfahrzeug Golf GTI Vision",
+            "Bravado Charger SRT", "Pegassi Gallardo", "Gallivanter Defender Halloween", "Emperor LFA", "Burgerfahrzeug Tiguan",
+            "Ubermacht M5 CS", "Benefactor AMG G63 (6X6)", "Ubermacht M4 G82", "Benefactor MG C63 Coupe", "Annis RX-7",
+            "Pfister 918 Spyder", "Coil Roadster", "Vulcar XC90", "Karin Eclipse GSX", "Burger Car",
+            "Benefactor MG GT Black Series", "Annis 350Z", "Pfister Taycan", "Coil Model S", "Karin Land Cruiser 200",
+            "Benefactor Benz Vito", "Annis GT-R I", "Pfister Panamera", "Coil Model X", "Karin Camry XSE",
+            "Benefactor MG S63", "Annis Skyline GT-R34", "Pfister 911 GT3 RS", "Coil Cybertruck", "Karin Mark 2",
+            "Benefactor MG G63", "Annis WRX 2004", "Pfister Neon", "Coil H9", "Karin Supra A80",
+            "Benefactor Benz 600SEL", "Annis Silvia S15", "Karin RAV4", "Benefactor Benz E420", "Annis RX-8",
+            "Benefactor MG C63", "Benefactor Maybach Pullman", "Benefactor MG GT", "Benefactor MG SL65", "Benefactor MG GT63 S",
+            "Benefactor MG VT", "Benefactor-MG VT S63"
+        ];
+        const clothingList = [
+            "Abibas Marquee Boost-Tiefs", "Abibas Marquee Boost Lows für Frauen", "Abibas Hose", "Abibas Hose für Frauen", "Abibas Anzug",
+            "Bandana Oberteil für Frauen", "Affen-Chef Maske", "Herzensstolz-Brille", "Herzenstolz für Frauen", "Amors Krone",
+            "Armors Krone für Frauen", "Starke Henne auf der Schulter", "Armband", "Bauchnabelpiercing", "Abibas Pezy 700 V3 Alvah",
+            "Abibas Pezy 700 V3 Alvah für Frauen", "Grand Kollektion Hose", "Halbleuchtende Hose für Frauen", "Air Bior Pullover",
+            "Bomberjacke für Frauen", "Alien-Maske mit Neon-Augen", "Leuchtende Schneebrille", "Frauen Leuchtende Schneebrille",
+            "Boxhelm", "Boxhelm für Frauen", "Eule auf der Schulter", "Boxhandschuhe", "Bauchnabelpiercing 2", "Abibas Pro Bounce 2019 Lows",
+            "Abibas Pro Bounce 2019 Lows für Frauen", "Halbleuchtende Hose", "Grand Kollektion Hose für Frauen", "Abibas Olympics Jacke",
+            "Tageskleid", "Bandana Maske", "Pixel-Brille", "Pixel-Brille für Frauen", "Cowgirl Hut", "Frauen Cowgirl Hut",
+            "Fliegender Bär auf der Schulter", "Handschuhe", "Boxhandschuhe", "Ground Mordan 4 Retro", "Groundporce One New Collection für Frauen",
+            "Helle Hose", "Hose von Panel für Frauen", "Arm Pangel Jacke", "Torso in Neonfarben für Frauen", "Baseball Maske",
+            "Schneeflocken-Brille", "Schneeflocken-Brille für Frauen", "Geweih mit Roter Nase", "Kaninchenohren für Frauen", "Fuchs auf der Schulter",
+            "Kazer Kopfhörer 2", "Glühende Nägel für Frauen", "Groundporce One New Collection", "Niki Shox für Frauen", "Leuchtende Hose",
+            "Abibas Leggins", "Bomberjacke", "Exklusives T-Shirt für Frauen", "Böse Maske", "Meme-Brille", "Glänzendes Hirschgeweih",
+            "Geweih mit Roter Nase", "Hamster auf der Schulter", "Kette um den Körper", "Handschuhe für Frauen", "Herrenschuhe in Neonfarben",
+            "Mordans 6 für Frauen", "Blaue Lui Vi Hose", "Frauenjeans Nr.1", "Grand T-Shirt", "Frauenkorsett", "Dämonen Maske", "Hirschgeweih",
+            "Glänzendes Hirschgeweih-Stirnband", "Leon Krawl auf der Schulter", "Kette Verlorenen Schatz Neon", "Volex-Uhr für Frauen",
+            "Leuchtende Keezy Boots", "Niki Zoom Freak 1 Multi-Color für Frauen", "Rosa Lui Vi Hose", "Frauenjeans Nr.2", "Cropp Kollektion T-Shirt",
+            "Frauenoberteil Vordicht", "Dichte Maske", "Kopfhörer mit Herz", "Kopfhörer mit Herz", "Liebliches Vogelein auf der Schulter",
+            "Volex-Uhr", "Volex-Uhr 2 für Frauen", "Leuchtende Schuhe in Rot", "Hohe Stiefel für Frauen", "Hose der neuen Niki Kollektion / Niki Tech Hose",
+            "Frauenjeans Nr.3", "Exklusive T-Shirt", "Jumpsuit für Frauen", "Die Maske eines Schweins", "Neon Helm", "Neon-Helm für Frauen",
+            "Zahnloser Drache auf der Schulter", "Kolex-Uhr", "Fashionista-Schal", "Leuchtende Schuhe", "Leuchtende Schuhe in Rot für Frauen",
+            "Neonhose", "Gussi Shorts für Frauen", "Grand Kollektion T-Shirt", "Kleid aus der Winterkollektion", "Emoji Maske", "Trendiger Haifischkopf",
+            "Trendiger Haifischkopf", "Marken-Flip-Flops", "Leuchtende Schuhe für Frauen", "Neue modische Jogginghose", "Neonhose für Frauen",
+            "Heller Kaputzenpulli", "Langes Marken-T-Shirt für Frauen", "Gebundenes Halstuch", "Neon-Kaninchenohren", "Hirschgeweih für Frauen",
+            "Mr.Robot Friend", "Volex-Uhr 2", "Niki Air Uptempo", "Pans für Frauen", "Personalisierte Isolierte Hose", "Neujahreskostüm Hose",
+            "Herren Torso in Neonfarben", "Marken-T-Shirt für Frauen", "Schal Maske", "Cappy mit Dosen", "Neon-Kaninchenohren für Frauen",
+            "Fashionista-Schal", "Niki Shox", "Rocs für Frauen", "Shorts Summer Voyage", "Ragged Jeans für Frauen", "Grand Kollektion Hoodie",
+            "Muci Not Fake Hoodie für Frauen", "Jason Blaue Maske", "Markenverband", "Niki Zoom Freak 1 Multi-Color", "Leuchtende Schuhe für Frauen",
+            "Neujahreskostüm Hose", "Damenrock mit Strumpfhose", "Kaputzenpullover Xmas", "Niedriges Damenkleid", "Karneval Maske",
+            "Silberne Kette mit Sturmhauben Anhänger", "Pans", "Hose Plit", "Jacke mit T-Shirt", "Orangenes Kleid", "Kitsune Maske", "Pezy Boost",
+            "Skaterjeans", "Jeansjacke", "Pullover mit langen Ärmeln für Frauen", "Kopfsack", "RGB Neon Schuhe 1", "Spider Hose", "Kapuzenpulli Maliky",
+            "Silvester Kostüm", "Lui Vi Wüstenschal", "Rocs", "Kalligraphie Hose", "Leuchtendes Sakko in XX mit XX Zierleiste", "Stilvoller Anzug",
+            "Maske", "Mordans 6", "Swordmen Hose", "Leuchtendes T-Shirt", "Sweatshirt mit Markenzeichen für Frauen", "Purge Maske", "Leuchtende Schuhe",
+            "Leuchtende Playboy Hose", "Blaue Lui Vi Jacke", "Top Nr.2 der Frauen", "Raben Maske", "Valenciaga Track", "Schwarze Lui Vi Hose",
+            "Lui Vi Schwarzes T-Shirt", "Top-Kollektion für Frauen Nr.5", "Robotermaske", "Geteilte Hose", "Lui Vi Oberteil in Farbe", "Weisses Grand T-Shirt",
+            "Sashmello Maske", "Pelz-Jogginghose", "Marken Polos", "Damentop mit Kettenriemen", "Schal Maske", "Markensweatshirt", "Lui Vi Oberteil in Farbe für Frauen",
+            "Schamanische Maske", "Marken-T-Shirt", "Sommer-BH", "Skelettkönig Maske", "Mikachu Hoodie", "Grand Kollektion T-Shirt für Frauen", "Snowboarder Maske",
+            "Mix Kollektion T-Shirt", "Grand Kollektion Hoodie für Frauen", "Sport Maske", "Mix Cropp Kollektion 2", "Leuchtendes Playboy T-Shirt mit Aufdruck für Frauen",
+            "Teufelmaske", "Modische Jacke", "Leuchtendes Playboy Sweatshirt für Frauen", "Weihnachtsmann Maske", "Muci Not Fake Hoodie", "Damen-Poloshirt",
+            "Wüstenschal", "Muci Rotes Tiger Sweatshirt", "LM Playboy Damen T-Shirt mit leuchtendem Aufdruck", "Zähnchen Maske"
+        ];
+        let mode = 'Suche';
+        function setMode(selectedMode) {
+            mode = selectedMode;
+            document.querySelectorAll(".toggle-btn").forEach(btn => btn.classList.remove("active"));
+            document.getElementById(`toggle${selectedMode}`).classList.add("active");
+            const priceInput = document.getElementById("priceInput");
+            const formatButton = document.getElementById("formatButton");
+            if (selectedMode === 'Verkaufe' || selectedMode === 'Kaufe') {
+                priceInput.classList.add("visible");
+                formatButton.style.display = "block"; // Show format button
+            } else {
+                priceInput.classList.remove("visible");
+                formatButton.style.display = "none"; // Hide format button
+            }
+            const sucheButtons = document.getElementById("sucheButtons");
+            if (selectedMode === 'Suche') {
+                sucheButtons.style.display = "flex";
+            } else {
+                sucheButtons.style.display = "none";
+            }
+            // Disable suggestions in "Suche" mode
+            if (selectedMode === 'Suche') {
+                document.getElementById("suggestions").style.display = "none";
+            } else {
+                document.getElementById("suggestions").style.display = "block";
+            }
+        }
+        function formatPrice(price) {
+            price = price.trim().toLowerCase();
+            // Replace commas with periods for consistency
+            price = price.replace(/,/g, '.');
+            // Extract numerical part
+            const numericalPart = price.replace(/[^0-9.]/g, '');
+            const multiplier = price.replace(/[0-9.]/g, '');
+            let value = parseFloat(numericalPart);
+            if (multiplier.includes('k')) {
+                value *= 1000;
+            } else if (multiplier.includes('mio')) {
+                value *= 1000000;
+            } else if (multiplier.includes('kk')) {
+                value *= 1000000;
+            } else if (multiplier.includes('b')) {
+                value *= 1000000000;
+            }
+            return `$${value.toLocaleString('de-DE', { 
+                maximumFractionDigits: 0,
+                useGrouping: true
+            })}`;
+        }
+        function correctVehicleName(vehicle) {
+            const lowerVehicle = vehicle.toLowerCase();
+            for (const [incorrectName, correctName] of Object.entries(vehicleCorrections)) {
+                if (lowerVehicle.includes(incorrectName)) {
+                    return vehicle.replace(new RegExp(incorrectName, 'i'), correctName);
+                }
+            }
+            return vehicle;
+        }
+        function correctClothingName(clothing) {
+            const lowerClothing = clothing.toLowerCase();
+            for (const [incorrectName, correctName] of Object.entries(clothingCorrections)) {
+                if (lowerClothing.includes(incorrectName)) {
+                    return clothing.replace(new RegExp(incorrectName, 'i'), correctName);
+                }
+            }
+            return clothing;
+        }
+        function handleInput() {
+            const inputText = document.getElementById("inputText");
+            const correctedText = correctVehicleName(correctClothingName(inputText.value));
+            inputText.value = correctedText;
+            if (mode !== 'Suche') {
+                showSuggestions();
+            }
+        }
+        function showSuggestions() {
+            const input = document.getElementById("inputText").value.toLowerCase();
+            const suggestionsDiv = document.getElementById("suggestions");
+            suggestionsDiv.innerHTML = "";
+            if (input.length > 0 && mode !== 'Suche') {
+                const filteredVehicleSuggestions = vehicleList.filter(vehicle => 
+                    vehicle.toLowerCase().includes(input)
+                ).map(vehicle => ({ name: vehicle, type: "Vehicle" }));
+
+                const filteredClothingSuggestions = clothingList.filter(clothing => 
+                    clothing.toLowerCase().includes(input)
+                ).map(clothing => ({ name: clothing, type: "Clothing" }));
+
+                const filteredSuggestions = [...filteredVehicleSuggestions, ...filteredClothingSuggestions];
+
+                filteredSuggestions.forEach(item => {
+                    const suggestion = document.createElement("div");
+                    suggestion.textContent = item.name;
+                    suggestion.innerHTML += `<span>(${item.type})</span>`;
+                    suggestion.onclick = () => {
+                        document.getElementById("inputText").value = item.name;
+                        suggestionsDiv.innerHTML = "";
+                    };
+                    suggestionsDiv.appendChild(suggestion);
+                });
+            }
+        }
+        function showPopup(message) {
+            const popup = document.getElementById("popup");
+            const popupMessage = document.getElementById("popup-message");
+            popupMessage.textContent = message;
+            popup.style.display = "block";
+            popup.style.animation = "fadeIn 0.3s ease-in-out forwards";
+        }
+        function closePopup() {
+            const popup = document.getElementById("popup");
+            popup.style.animation = "fadeOut 0.3s ease-in-out forwards";
+            setTimeout(() => {
+                popup.style.display = "none";
+            }, 300);
+        }
+        function showNotification(message) {
+            const notification = document.getElementById("notification");
+            const notificationMessage = document.getElementById("notification-message");
+            notificationMessage.textContent = message;
+            notification.style.display = "block";
+            notification.style.animation = "fadeInNotification 0.3s ease-in-out forwards";
+            setTimeout(() => {
+                notification.style.animation = "fadeOutNotification 0.3s ease-in-out forwards";
+                setTimeout(() => {
+                    notification.style.display = "none";
+                }, 300);
+            }, 5000);
+        }
+        function showDocumentsPopup() {
+            const documentPopup = document.getElementById("documentPopup");
+            documentPopup.style.display = "block";
+            documentPopup.style.animation = "fadeIn 0.3s ease-in-out forwards";
+        }
+        function closeDocumentPopup() {
+            const documentPopup = document.getElementById("documentPopup");
+            documentPopup.style.animation = "fadeOut 0.3s ease-in-out forwards";
+            setTimeout(() => {
+                documentPopup.style.display = "none";
+            }, 300);
+        }
+        function formatText() {
+            const inputText = document.getElementById("inputText").value.trim();
+            if (!inputText) {
+                showPopup("Es ist kein Text im Eingabefeld erhalten!");
+                return;
+            }
+            for (let illegal of illegalItems) {
+                if (inputText.toLowerCase().includes(illegal.toLowerCase())) {
+                    showPopup("Illegale Ware, nicht veröffentlichen!");
+                    return;
+                }
+            }
+            let price = document.getElementById("priceInput").value.trim();
+            let vehicle = correctVehicleName(inputText);
+            let clothing = correctClothingName(inputText);
+            let output = "";
+            if (mode === 'Verkaufe') {
+                if (price) {
+                    try {
+                        price = formatPrice(price);
+                        output = `${mode}: ${vehicle || clothing}. Preis: ${price}.`;
+                    } catch (e) {
+                        showPopup("Ungültiger Preis! Bitte überprüfen.");
+                        return;
+                    }
+                } else {
+                    output = `${mode}: ${vehicle || clothing}. Preis: VHB.`;
+                }
+            } else if (mode === 'Kaufe') {
+                if (price) {
+                    try {
+                        price = formatPrice(price);
+                        output = `${mode}: ${vehicle || clothing}. Budget: ${price}.`;
+                    } catch (e) {
+                        showPopup("Ungültiger Preis! Bitte überprüfen.");
+                        return;
+                    }
+                } else {
+                    output = `${mode}: ${vehicle || clothing}. Budget: VHB.`;
+                }
+            } else if (mode === 'Suche') {
+                output = `Suche: ${inputText}.`;
+            }
+            document.getElementById("outputText").value = output;
+            showNotification("Anzeige erfolgreich formatiert!");
+        }
+        function copyOutput() {
+            const outputText = document.getElementById("outputText");
+            outputText.select();
+            document.execCommand("copy");
+            showNotification("Text kopiert!");
+        }
+        function appendText(text) {
+            const inputText = document.getElementById("inputText").value.trim();
+            if (!inputText) {
+                showPopup("Bitte geben Sie zuerst einen Text in das Eingabefeld ein.");
+                return;
+            }
+            let output = `Suche: ${inputText}. ${text}`;
+            document.getElementById("outputText").value = output;
+            showNotification("Anzeige erfolgreich formatiert!");
+        }
+        let timeLeft = 10;
+        const disclaimerButton = document.getElementById("closeDisclaimer");
+        const disclaimerInterval = setInterval(() => {
+            timeLeft--;
+            disclaimerButton.textContent = `OK (${timeLeft})`;
+            if (timeLeft <= 0) {
+                clearInterval(disclaimerInterval);
+                disclaimerButton.textContent = "OK";
+                disclaimerButton.disabled = false;
+            }
+        }, 1000);
+        disclaimerButton.addEventListener("click", () => {
+            document.getElementById("disclaimer").style.display = "none";
+            document.getElementById("overlay").style.display = "none";
+        });
+        document.getElementById("disclaimer").style.display = "block";
+        document.getElementById("overlay").style.display = "block";
+        document.getElementById("sucheButtons").style.display = "none";
+
+        // Basic DDoS Protection
+        let requestCount = 0;
+        const maxRequests = 100; // Maximum number of requests allowed per minute
+        const resetTime = 60000; // Reset time in milliseconds (1 minute)
+
+        function checkRequestLimit() {
+            requestCount++;
+            if (requestCount > maxRequests) {
+                showPopup("Zu viele Anfragen. Bitte versuchen Sie es später erneut.");
+                return false;
+            }
+            setTimeout(() => {
+                requestCount--;
+            }, resetTime);
+            return true;
+        }
+
+        // Example usage in a function that handles user requests
+        function handleUserRequest() {
+            if (!checkRequestLimit()) {
+                return;
+            }
+            // Process the request
+        }
+    </script>
+</body>
+</html>
